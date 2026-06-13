@@ -12,8 +12,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .container {
             background-color: #1e1e24;
@@ -21,7 +23,7 @@
             border-radius: 15px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             box-sizing: border-box;
             border: 1px solid #ff007f;
         }
@@ -36,25 +38,25 @@
         .input-row {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .input-group {
             flex: 1;
-            margin-bottom: 5px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #ff007f;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             font-weight: bold;
             letter-spacing: 1px;
         }
         .section-title {
             color: #bbb;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
+            margin-top: 15px;
             margin-bottom: 8px;
             text-transform: uppercase;
             border-left: 3px solid #ff007f;
@@ -62,12 +64,12 @@
         }
         input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             border: 1px solid #444;
             background-color: #2a2a35;
             color: #fff;
-            font-size: 15px;
+            font-size: 14px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -88,11 +90,11 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: background 0.3s;
+            margin-top: 15px;
         }
         button:hover {
             background-color: #e0006c;
         }
-        /* Dashboard එක මුලින් හංගන්න */
         #app-dashboard {
             display: none;
         }
@@ -103,14 +105,25 @@
             border-radius: 8px;
             text-align: center;
             border: 1px dashed #ff007f;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .signal-time {
+            font-size: 22px;
+            color: #00ff66;
+            font-weight: bold;
+            display: block;
+            margin: 5px 0;
+        }
+        .safe-odd {
             font-size: 18px;
+            color: #ffcc00;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. LOGIN SCREEN -->
     <div id="login-screen" class="container">
         <h2>KING SHORT VIP LOGIN</h2>
         <div class="input-group">
@@ -121,79 +134,164 @@
         <button onclick="checkLogin()">LOGIN</button>
     </div>
 
-    <!-- 2. MAIN APP DASHBOARD (ලොග් වුණාට පස්සේ පෙනෙන කොටස) -->
     <div id="app-dashboard" class="container">
         <h2>KING SHORT<br><span style="font-size: 13px; color: #fff;">Multi-Matrix Predictor</span></h2>
         
-        <div class="section-title">Data Input Matrix</div>
+        <div class="section-title">1. Before High Odd Matrix</div>
         <div class="input-row">
             <div class="input-group">
-                <label>LAST VALUE 1</label>
-                <input type="number" id="val1" placeholder="0.00">
+                <label>TIME (HH:MM:SS)</label>
+                <input type="text" id="time1" placeholder="08:05:30">
             </div>
             <div class="input-group">
-                <label>LAST VALUE 2</label>
-                <input type="number" id="val2" placeholder="0.00">
+                <label>ODD</label>
+                <input type="number" id="odd1" step="0.01" placeholder="1.23">
             </div>
         </div>
 
-        <button onclick="generatePrediction()">GENERATE SIGNAL</button>
+        <div class="section-title" style="color: #00ff66; border-left-color: #00ff66;">2. High Odd Matrix (Min 10.00)</div>
+        <div class="input-row">
+            <div class="input-group">
+                <label style="color: #00ff66;">HIGH ODD TIME</label>
+                <input type="text" id="time2" placeholder="08:04:40" style="border-color: #00ff66;">
+            </div>
+            <div class="input-group">
+                <label style="color: #00ff66;">HIGH ODD VALUE</label>
+                <input type="number" id="odd2" step="0.01" placeholder="22.34" style="border-color: #00ff66;">
+            </div>
+        </div>
+
+        <div class="section-title">3. After High Odd Matrix</div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>TIME (HH:MM:SS)</label>
+                <input type="text" id="time3" placeholder="08:06:30">
+            </div>
+            <div class="input-group">
+                <label>ODD</label>
+                <input type="number" id="odd3" step="0.01" placeholder="3.23">
+            </div>
+        </div>
+
+        <button onclick="generatePrediction()">GENERATE MATRIX SIGNAL</button>
 
         <div class="result-box" id="result">
-            Awaiting Next Signal Matrix...
+            Awaiting Next High Odd Matrix Data...
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // ඔයා ලබාගත්තු ඔයාගේම රහස් Gist ලින්ක් එක
+        // Gist URL
         const gistUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
+        
+        let idleTimer;
+        // විනාඩි 20 ක් මිලිතත්පර වලින් (20 * 60 * 1000)
+        const timeoutDuration = 20 * 60 * 1000; 
+
+        // සයිට් එක රිෆ්‍රෙශ් කරන function එක
+        function resetApp() {
+            alert("ආරක්ෂිත හේතූන් මත විනාඩි 20කට පසු ඇප් එක ලොග් අවුට් විය! 🔒");
+            window.location.reload(); 
+        }
+
+        // යූසර් වැඩක් කරද්දී ටයිමර් එක රීසෙට් කරන එක
+        function startIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(resetApp, timeoutDuration);
+        }
 
         async function checkLogin() {
             const userEnteredPw = document.getElementById("passwordField").value.trim();
-            
-            if (userEnteredPw === "") {
-                alert("කරුණාකර Password එකක් ඇතුළත් කරන්න!");
-                return;
-            }
+            if (userEnteredPw === "") { alert("කරුණාකර Password එකක් ඇතුළත් කරන්න!"); return; }
 
             try {
-                // Online Gist එක කියවීම
                 const response = await fetch(gistUrl);
                 const textData = await response.text();
-                
-                // පේළියෙන් පේළියට ඇති Password වෙන් කරගැනීම
                 const validPasswords = textData.split("\n").map(pw => pw.trim());
 
-                // ඇතුළත් කළ රහස් පදය Gist එකේ තිබේදැයි බැලීම
                 if (validPasswords.includes(userEnteredPw)) {
                     alert("Login Successful! ✅");
-                    // Login screen එක හංගලා Dashboard එක පෙන්වනවා
                     document.getElementById("login-screen").style.display = "none";
                     document.getElementById("app-dashboard").style.display = "block";
+                    
+                    // ලොග් වුණාට පස්සේ විනාඩි 20 බලන ටයිමර් එක පටන් ගන්නවා
+                    startIdleTimer();
+                    
+                    // යූසර් ස්ක්‍රීන් එක ඇල්ලුවොත්, ක්ලික් කරොත්, හෝ කීබෝඩ් එබුවොත් විනාඩි 20 ආයෙත් මුල ඉඳන් පටන් ගන්නවා
+                    window.onload = startIdleTimer;
+                    window.onmousemove = startIdleTimer;
+                    window.onmousedown = startIdleTimer; 
+                    window.ontouchstart = startIdleTimer;
+                    window.onclick = startIdleTimer;     
+                    window.onkeydown = startIdleTimer;   
                 } else {
-                    alert("වැරදි VIP Password එකක්! කරුණාකර නිවැරදි එක ලබාගන්න.");
+                    alert("වැරදි VIP Password එකක්!");
                 }
             } catch (error) {
-                alert("Internet Connection එකේ අවුලක්! නැවත උත්සාහ කරන්න.");
-                console.error(error);
+                alert("Internet Connection ලොස්ට්!");
             }
         }
 
-        // සිග්නල් ඇනලයිස් කරන සරල Logic එකක් (ඔයාට ඕන විදිහට මේක පස්සේ වෙනස් කරගන්න පුළුවන්)
+        // සිග්නල් කැල්කියුලේෂන් එක
         function generatePrediction() {
-            const v1 = parseFloat(document.getElementById("val1").value);
-            const v2 = parseFloat(document.getElementById("val2").value);
+            const time2Input = document.getElementById("time2").value.trim();
+            const odd2Input = parseFloat(document.getElementById("odd2").value);
 
-            if (isNaN(v1) || !v2) {
-                alert("කරුණාකර අගයන් නිවැරදිව ඇතුළත් කරන්න!");
+            if (!time2Input || isNaN(odd2Input)) {
+                alert("කරුණාකර High Odd එකේ Time සහ Odd ඇතුළත් කරන්න!");
+                return;
+            }
+            if (odd2Input < 10.00) {
+                alert("High Odd අගය 10.00 හෝ ඊට වැඩි විය යුතුය!");
                 return;
             }
 
-            // නිකන් උදාහරණ ගණනය කිරීමක් දාලා තියෙන්නේ
-            const prediction = ((v1 + v2) / 1.5).toFixed(2);
+            const oddString = odd2Input.toString().replace('.', ''); 
+            let digitsSum = 0;
+            for (let char of oddString) {
+                if (!isNaN(parseInt(char))) {
+                    digitsSum += parseInt(char);
+                }
+            }
+
+            const timeParts = time2Input.split(":");
+            if (timeParts.length !== 3) {
+                alert("High Odd Time එක නිවැරදිව දමන්න (HH:MM:SS) \nඋදා: 08:04:40");
+                return;
+            }
+
+            let hours = parseInt(timeParts[0]);
+            let minutes = parseInt(timeParts[1]);
+            let seconds = parseInt(timeParts[2]);
+
+            let dateObj = new Date();
+            dateObj.setHours(hours, minutes, seconds, 0);
+
+            let baseMinutesToAdd = digitsSum; 
             
-            document.getElementById("result").innerHTML = `🎯 NEXT SIGNAL: <span style="color: #ff007f;">${prediction}x</span>`;
+            let signalTime1 = new Date(dateObj.getTime() + baseMinutesToAdd * 60000);
+            let signalTime2 = new Date(dateObj.getTime() + (baseMinutesToAdd + 1) * 60000);
+
+            function formatTime(d) {
+                let hh = String(d.getHours()).padStart(2, '0');
+                let mm = String(d.getMinutes()).padStart(2, '0');
+                return `${hh}:${mm}`;
+            }
+
+            let finalTimeRange = `${formatTime(signalTime1)} / ${formatTime(signalTime2)}`;
+
+            let safeOddVal = digitsSum - 5;
+            if (safeOddVal <= 0) safeOddVal = 2; 
+
+            document.getElementById("result").innerHTML = `
+                📊 Matrix Sum: <b>${digitsSum} Mins</b><br>
+                🎯 NEXT SIGNAL TIME:<br>
+                <span class="signal-time">⏱️ ${finalTimeRange}</span>
+                🔥 TARGET ODDS: <b>7x | 10x</b><br>
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
+                🛡️ SAFE ODD MATCH:<br>
+                <span class="safe-odd">SAFE ${safeOddVal} ODD</span>
+            `;
         }
     </script>
 </body>
