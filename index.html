@@ -107,6 +107,11 @@
             border: 1px dashed #ff007f;
             font-size: 16px;
             line-height: 1.6;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .signal-time {
             font-size: 22px;
@@ -119,6 +124,35 @@
             font-size: 18px;
             color: #ffcc00;
             font-weight: bold;
+        }
+        .server-title {
+            color: #ffcc00;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* Loading කැරකෙන රවුමේ ස්ටයිල් එක */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #ff007f;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        .loading-text {
+            color: #ffaa00;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -173,7 +207,7 @@
             </div>
         </div>
 
-        <button onclick="generatePrediction()">GENERATE MATRIX SIGNAL</button>
+        <button onclick="startPredictionProcess()">GENERATE MATRIX SIGNAL</button>
 
         <div class="result-box" id="result">
             Awaiting Next High Odd Matrix Data...
@@ -181,20 +215,16 @@
     </div>
 
     <script>
-        // Gist URL
         const gistUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
         
         let idleTimer;
-        // විනාඩි 20 ක් මිලිතත්පර වලින් (20 * 60 * 1000)
         const timeoutDuration = 20 * 60 * 1000; 
 
-        // සයිට් එක රිෆ්‍රෙශ් කරන function එක
         function resetApp() {
             alert("ආරක්ෂිත හේතූන් මත විනාඩි 20කට පසු ඇප් එක ලොග් අවුට් විය! 🔒");
             window.location.reload(); 
         }
 
-        // යූසර් වැඩක් කරද්දී ටයිමර් එක රීසෙට් කරන එක
         function startIdleTimer() {
             clearTimeout(idleTimer);
             idleTimer = setTimeout(resetApp, timeoutDuration);
@@ -214,10 +244,7 @@
                     document.getElementById("login-screen").style.display = "none";
                     document.getElementById("app-dashboard").style.display = "block";
                     
-                    // ලොග් වුණාට පස්සේ විනාඩි 20 බලන ටයිමර් එක පටන් ගන්නවා
                     startIdleTimer();
-                    
-                    // යූසර් ස්ක්‍රීන් එක ඇල්ලුවොත්, ක්ලික් කරොත්, හෝ කීබෝඩ් එබුවොත් විනාඩි 20 ආයෙත් මුල ඉඳන් පටන් ගන්නවා
                     window.onload = startIdleTimer;
                     window.onmousemove = startIdleTimer;
                     window.onmousedown = startIdleTimer; 
@@ -232,11 +259,12 @@
             }
         }
 
-        // සිග්නල් කැල්කියුලේෂන් එක
-        function generatePrediction() {
+        // මුලින්ම Server එකට Connect වෙන සෙල්ලම පෙන්වන කොටස
+        function startPredictionProcess() {
             const time2Input = document.getElementById("time2").value.trim();
             const odd2Input = parseFloat(document.getElementById("odd2").value);
 
+            // Inputs Validation (කලින් වගේමයි)
             if (!time2Input || isNaN(odd2Input)) {
                 alert("කරුණාකර High Odd එකේ Time සහ Odd ඇතුළත් කරන්න!");
                 return;
@@ -245,6 +273,21 @@
                 alert("High Odd අගය 10.00 හෝ ඊට වැඩි විය යුතුය!");
                 return;
             }
+
+            // Result box එක ඇතුළට කැරකෙන රවුම දානවා
+            document.getElementById("result").innerHTML = `
+                <div class="spinner"></div>
+                <div class="loading-text">SERVER CONNECTING...</div>
+            `;
+
+            // තත්පර 2.5 කට (මිලි තත්පර 2500) පසු සිග්නල් එක Generate කරනවා
+            setTimeout(generatePrediction, 2500);
+        }
+
+        // සිග්නල් එක කැල්කියුලේට් කරලා අවුට්පුට් එක දෙන කොටස
+        function generatePrediction() {
+            const time2Input = document.getElementById("time2").value.trim();
+            const odd2Input = parseFloat(document.getElementById("odd2").value);
 
             const oddString = odd2Input.toString().replace('.', ''); 
             let digitsSum = 0;
@@ -255,22 +298,14 @@
             }
 
             const timeParts = time2Input.split(":");
-            if (timeParts.length !== 3) {
-                alert("High Odd Time එක නිවැරදිව දමන්න (HH:MM:SS) \nඋදා: 08:04:40");
-                return;
-            }
-
             let hours = parseInt(timeParts[0]);
             let minutes = parseInt(timeParts[1]);
-            let seconds = parseInt(timeParts[2]);
 
             let dateObj = new Date();
-            dateObj.setHours(hours, minutes, seconds, 0);
+            dateObj.setHours(hours, minutes, 0, 0); 
 
-            let baseMinutesToAdd = digitsSum; 
-            
-            let signalTime1 = new Date(dateObj.getTime() + baseMinutesToAdd * 60000);
-            let signalTime2 = new Date(dateObj.getTime() + (baseMinutesToAdd + 1) * 60000);
+            let signalTime1 = new Date(dateObj.getTime() + (digitsSum + 1) * 60000);
+            let signalTime2 = new Date(dateObj.getTime() + (digitsSum + 2) * 60000);
 
             function formatTime(d) {
                 let hh = String(d.getHours()).padStart(2, '0');
@@ -283,12 +318,14 @@
             let safeOddVal = digitsSum - 5;
             if (safeOddVal <= 0) safeOddVal = 2; 
 
+            // ඔයා ඉල්ලපු විදිහට KING ANALYSIS SERVER SIGNAL එකත් එක්ක රිසල්ට් එක දානවා
             document.getElementById("result").innerHTML = `
+                <div class="server-title">⚡ KING ANALYSIS SERVER SIGNAL ⚡</div>
                 📊 Matrix Sum: <b>${digitsSum} Mins</b><br>
                 🎯 NEXT SIGNAL TIME:<br>
                 <span class="signal-time">⏱️ ${finalTimeRange}</span>
                 🔥 TARGET ODDS: <b>7x | 10x</b><br>
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0; width:100%;">
                 🛡️ SAFE ODD MATCH:<br>
                 <span class="safe-odd">SAFE ${safeOddVal} ODD</span>
             `;
