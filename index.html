@@ -5,329 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KING SHORT - Multi-Matrix Predictor</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121214;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            background-color: #1e1e24;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 450px;
-            box-sizing: border-box;
-            border: 1px solid #ff007f;
-        }
-        h2 {
-            text-align: center;
-            color: #ff007f;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 20px;
-        }
-        .input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .input-group {
-            flex: 1;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #ff007f;
-            font-size: 11px;
-            text-align: center;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .section-title {
-            color: #bbb;
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 15px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            border-left: 3px solid #ff007f;
-            padding-left: 8px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background-color: #2a2a35;
-            color: #fff;
-            font-size: 14px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        input:focus {
-            outline: none;
-            border-color: #ff007f;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #ff007f;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.3s;
-            margin-top: 15px;
-        }
-        button:hover {
-            background-color: #e0006c;
-        }
-        #app-dashboard {
-            display: none;
-        }
-        .result-box {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #2a2a35;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px dashed #ff007f;
-            font-size: 16px;
-            line-height: 1.6;
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .signal-time {
-            font-size: 22px;
-            color: #00ff66;
-            font-weight: bold;
-            display: block;
-            margin: 5px 0;
-        }
-        .safe-odd {
-            font-size: 18px;
-            color: #ffcc00;
-            font-weight: bold;
-        }
-        .server-title {
-            color: #ffcc00;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        /* Loading කැරකෙන රවුමේ ස්ටයිල් එක */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #ff007f;
-            animation: spin 1s linear infinite;
-            margin-bottom: 10px;
-        }
-        .loading-text {
-            color: #ffaa00;
-            font-weight: bold;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121214; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: #1e1e24; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 450px; box-sizing: border-box; border: 1px solid #ff007f; }
+        h2 { text-align: center; color: #ff007f; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; font-size: 20px; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-group { flex: 1; }
+        label { display: block; margin-bottom: 6px; color: #ff007f; font-size: 11px; text-align: center; font-weight: bold; letter-spacing: 1px; }
+        .section-title { color: #bbb; font-size: 12px; font-weight: bold; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #ff007f; padding-left: 8px; }
+        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background-color: #2a2a35; color: #fff; font-size: 14px; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 12px; background-color: #ff007f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s; margin-top: 15px; }
+        .result-box { margin-top: 20px; padding: 15px; background-color: #2a2a35; border-radius: 8px; text-align: center; border: 1px dashed #ff007f; font-size: 16px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .signal-time { font-size: 22px; color: #00ff66; font-weight: bold; display: block; margin: 5px 0; }
+        .safe-odd { font-size: 18px; color: #ffcc00; font-weight: bold; }
+        .server-title { color: #ffcc00; font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #ff007f; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="container">
         <h2>KING SHORT VIP LOGIN</h2>
-        <div class="input-group">
-            <label for="passwordField">ENTER VIP PASSWORD</label>
-            <input type="password" id="passwordField" placeholder="••••••••">
-        </div>
-        <br>
+        <input type="password" id="passwordField" placeholder="••••••••">
         <button onclick="checkLogin()">LOGIN</button>
     </div>
 
-    <div id="app-dashboard" class="container">
+    <div id="app-dashboard" class="container" style="display:none;">
         <h2>KING SHORT<br><span style="font-size: 13px; color: #fff;">Multi-Matrix Predictor</span></h2>
         
         <div class="section-title">1. Before High Odd Matrix</div>
-        <div class="input-row">
-            <div class="input-group">
-                <label>TIME (HH:MM:SS)</label>
-                <input type="text" id="time1" placeholder="08:05:30">
-            </div>
-            <div class="input-group">
-                <label>ODD</label>
-                <input type="number" id="odd1" step="0.01" placeholder="1.23">
-            </div>
-        </div>
+        <div class="input-row"><input type="text" id="time1" placeholder="08:05:30"><input type="number" id="odd1" step="0.01" placeholder="1.23"></div>
 
-        <div class="section-title" style="color: #00ff66; border-left-color: #00ff66;">2. High Odd Matrix (Min 10.00)</div>
-        <div class="input-row">
-            <div class="input-group">
-                <label style="color: #00ff66;">HIGH ODD TIME</label>
-                <input type="text" id="time2" placeholder="08:04:40" style="border-color: #00ff66;">
-            </div>
-            <div class="input-group">
-                <label style="color: #00ff66;">HIGH ODD VALUE</label>
-                <input type="number" id="odd2" step="0.01" placeholder="22.34" style="border-color: #00ff66;">
-            </div>
-        </div>
+        <div class="section-title" style="color: #00ff66;">2. High Odd Matrix (Min 10.00)</div>
+        <div class="input-row"><input type="text" id="time2" placeholder="08:00:00"><input type="number" id="odd2" step="0.01" placeholder="10.25"></div>
 
         <div class="section-title">3. After High Odd Matrix</div>
-        <div class="input-row">
-            <div class="input-group">
-                <label>TIME (HH:MM:SS)</label>
-                <input type="text" id="time3" placeholder="08:06:30">
-            </div>
-            <div class="input-group">
-                <label>ODD</label>
-                <input type="number" id="odd3" step="0.01" placeholder="3.23">
-            </div>
-        </div>
+        <div class="input-row"><input type="text" id="time3" placeholder="08:06:30"><input type="number" id="odd3" step="0.01" placeholder="2.34"></div>
 
         <button onclick="startPredictionProcess()">GENERATE MATRIX SIGNAL</button>
-
-        <div class="result-box" id="result">
-            Awaiting Next High Odd Matrix Data...
-        </div>
+        <div class="result-box" id="result">Awaiting Data...</div>
     </div>
 
     <script>
         const gistUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
         
-        let idleTimer;
-        const timeoutDuration = 20 * 60 * 1000; 
-
-        function resetApp() {
-            alert("ආරක්ෂිත හේතූන් මත විනාඩි 20කට පසු ඇප් එක ලොග් අවුට් විය! 🔒");
-            window.location.reload(); 
-        }
-
-        function startIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(resetApp, timeoutDuration);
-        }
-
         async function checkLogin() {
-            const userEnteredPw = document.getElementById("passwordField").value.trim();
-            if (userEnteredPw === "") { alert("කරුණාකර Password එකක් ඇතුළත් කරන්න!"); return; }
-
-            try {
-                const response = await fetch(gistUrl);
-                const textData = await response.text();
-                const validPasswords = textData.split("\n").map(pw => pw.trim());
-
-                if (validPasswords.includes(userEnteredPw)) {
-                    alert("Login Successful! ✅");
-                    document.getElementById("login-screen").style.display = "none";
-                    document.getElementById("app-dashboard").style.display = "block";
-                    
-                    startIdleTimer();
-                    window.onload = startIdleTimer;
-                    window.onmousemove = startIdleTimer;
-                    window.onmousedown = startIdleTimer; 
-                    window.ontouchstart = startIdleTimer;
-                    window.onclick = startIdleTimer;     
-                    window.onkeydown = startIdleTimer;   
-                } else {
-                    alert("වැරදි VIP Password එකක්!");
-                }
-            } catch (error) {
-                alert("Internet Connection ලොස්ට්!");
-            }
+            const pw = document.getElementById("passwordField").value;
+            const res = await fetch(gistUrl);
+            const data = await res.text();
+            if (data.includes(pw)) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("app-dashboard").style.display = "block";
+            } else { alert("වැරදියි!"); }
         }
 
-        // මුලින්ම Server එකට Connect වෙන සෙල්ලම පෙන්වන කොටස
         function startPredictionProcess() {
-            const time2Input = document.getElementById("time2").value.trim();
-            const odd2Input = parseFloat(document.getElementById("odd2").value);
-
-            // Inputs Validation (කලින් වගේමයි)
-            if (!time2Input || isNaN(odd2Input)) {
-                alert("කරුණාකර High Odd එකේ Time සහ Odd ඇතුළත් කරන්න!");
-                return;
-            }
-            if (odd2Input < 10.00) {
-                alert("High Odd අගය 10.00 හෝ ඊට වැඩි විය යුතුය!");
-                return;
-            }
-
-            // Result box එක ඇතුළට කැරකෙන රවුම දානවා
-            document.getElementById("result").innerHTML = `
-                <div class="spinner"></div>
-                <div class="loading-text">SERVER CONNECTING...</div>
-            `;
-
-            // තත්පර 2.5 කට (මිලි තත්පර 2500) පසු සිග්නල් එක Generate කරනවා
-            setTimeout(generatePrediction, 2500);
+            document.getElementById("result").innerHTML = `<div class="spinner"></div><div>SERVER CONNECTING...</div>`;
+            setTimeout(generatePrediction, 2000);
         }
 
-        // සිග්නල් එක කැල්කියුලේට් කරලා අවුට්පුට් එක දෙන කොටස
         function generatePrediction() {
-            const time2Input = document.getElementById("time2").value.trim();
-            const odd2Input = parseFloat(document.getElementById("odd2").value);
-
-            const oddString = odd2Input.toString().replace('.', ''); 
+            const time2 = document.getElementById("time2").value;
+            const odd2 = parseFloat(document.getElementById("odd2").value);
+            
             let digitsSum = 0;
-            for (let char of oddString) {
-                if (!isNaN(parseInt(char))) {
-                    digitsSum += parseInt(char);
-                }
-            }
+            odd2.toString().replace('.', '').split('').forEach(d => { digitsSum += parseInt(d); });
 
-            const timeParts = time2Input.split(":");
-            let hours = parseInt(timeParts[0]);
-            let minutes = parseInt(timeParts[1]);
-
+            const t = time2.split(":");
             let dateObj = new Date();
-            dateObj.setHours(hours, minutes, 0, 0); 
+            dateObj.setHours(parseInt(t[0]), parseInt(t[1]), 0, 0);
 
-            let signalTime1 = new Date(dateObj.getTime() + (digitsSum + 1) * 60000);
-            let signalTime2 = new Date(dateObj.getTime() + (digitsSum + 2) * 60000);
+            // නිවැරදි කළ ගණනය කිරීම: (උදා: 08:00 + 8 min + 1 min = 08:09)
+            let s1 = new Date(dateObj.getTime() + (digitsSum + 1) * 60000);
+            let s2 = new Date(dateObj.getTime() + (digitsSum + 2) * 60000);
 
-            function formatTime(d) {
-                let hh = String(d.getHours()).padStart(2, '0');
-                let mm = String(d.getMinutes()).padStart(2, '0');
-                return `${hh}:${mm}`;
-            }
+            const fmt = (d) => String(d.getHours()).padStart(2,'0') + ":" + String(d.getMinutes()).padStart(2,'0');
 
-            let finalTimeRange = `${formatTime(signalTime1)} / ${formatTime(signalTime2)}`;
-
-            let safeOddVal = digitsSum - 5;
-            if (safeOddVal <= 0) safeOddVal = 2; 
-
-            // ඔයා ඉල්ලපු විදිහට KING ANALYSIS SERVER SIGNAL එකත් එක්ක රිසල්ට් එක දානවා
             document.getElementById("result").innerHTML = `
                 <div class="server-title">⚡ KING ANALYSIS SERVER SIGNAL ⚡</div>
-                📊 Matrix Sum: <b>${digitsSum} Mins</b><br>
-                🎯 NEXT SIGNAL TIME:<br>
-                <span class="signal-time">⏱️ ${finalTimeRange}</span>
-                🔥 TARGET ODDS: <b>7x | 10x</b><br>
-                <hr style="border:0; border-top:1px solid #444; margin:10px 0; width:100%;">
-                🛡️ SAFE ODD MATCH:<br>
-                <span class="safe-odd">SAFE ${safeOddVal} ODD</span>
+                🎯 NEXT SIGNAL TIME: <span class="signal-time">${fmt(s1)} / ${fmt(s2)}</span>
+                🛡️ SAFE ${digitsSum - 5} ODD
             `;
         }
     </script>
