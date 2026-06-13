@@ -72,267 +72,129 @@
             text-align: center;
         }
         input:focus {
-            border-color: #ff007f;
             outline: none;
+            border-color: #ff007f;
         }
         button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background-color: #ff007f;
+            color: white;
             border: none;
             border-radius: 8px;
-            color: white;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 15px;
+            transition: background 0.3s;
         }
         button:hover {
             background-color: #e0006c;
         }
-        .error-msg {
-            color: #ff3333;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
+        /* Dashboard එක මුලින් හංගන්න */
+        #app-dashboard {
             display: none;
         }
-        .step-panel {
-            display: none;
-        }
-        #stepPassword {
-            display: block;
-        }
-        /* Loading Screen Style */
-        .loader-box {
-            text-align: center;
-            padding: 30px 10px;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border-left-color: #ff007f;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text {
-            font-size: 18px;
-            color: #00ff88;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-        /* Result Screen Style */
         .result-box {
-            padding: 20px;
+            margin-top: 20px;
+            padding: 15px;
             background-color: #2a2a35;
             border-radius: 8px;
-            border: 1px solid #00ff88;
-            margin-bottom: 25px;
-        }
-        .result-title {
-            font-weight: bold;
-            color: #00ff88;
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-        .signal-time {
-            font-size: 28px;
+            border: 1px dashed #ff007f;
+            font-size: 18px;
             font-weight: bold;
-            letter-spacing: 2px;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        /* Target Odds Box */
-        .target-box {
-            border-top: 1px dashed #555;
-            padding-top: 15px;
-            color: #ffaa00;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-<!-- STEP 1: PASSWORD SCREEN -->
-<div class="container step-panel" id="stepPassword">
-    <h2>VIP ACCESS LOCK</h2>
-    <div style="margin-bottom: 20px;">
-        <label for="pwInput">ENTER VIP PASSWORD</label>
-        <input type="password" id="pwInput" placeholder="••••••••">
-        <div class="error-msg" id="errorMsg">වැරදි මුරපදයක්! නැවත උත්සාහ කරන්න.</div>
-    </div>
-    <button onclick="checkPassword()">UNLOCK APP</button>
-</div>
-
-<!-- STEP 2: MULTI-INPUT SCREEN -->
-<div class="container step-panel" id="stepMatrix">
-    <h2>KING SHORT MATRIX v2.0</h2>
-    
-    <!-- 1. BEFORE HIGH ODDS -->
-    <div class="section-title">1. Before High Odds</div>
-    <div class="input-row">
+    <!-- 1. LOGIN SCREEN -->
+    <div id="login-screen" class="container">
+        <h2>KING SHORT VIP LOGIN</h2>
         <div class="input-group">
-            <label>TIME (HH:MM:SS)</label>
-            <input type="text" id="beforeTime" placeholder="10:14:02">
+            <label for="passwordField">ENTER VIP PASSWORD</label>
+            <input type="password" id="passwordField" placeholder="••••••••">
         </div>
-        <div class="input-group">
-            <label>ODDS (e.g. 1.50)</label>
-            <input type="text" id="beforeOdds" placeholder="1.84">
-        </div>
+        <br>
+        <button onclick="checkLogin()">LOGIN</button>
     </div>
 
-    <!-- 2. TARGET HIGH ODDS -->
-    <div class="section-title" style="color: #ff007f;">2. Target High Odds 👑</div>
-    <div class="input-row">
-        <div class="input-group">
-            <label style="color: #00ff88;">REAL TIME *</label>
-            <input type="text" id="timeInput" placeholder="10:15:23" style="border-color: #ff007f;">
-        </div>
-        <div class="input-group">
-            <label style="color: #00ff88;">REAL ODDS *</label>
-            <input type="text" id="oddsInput" placeholder="32.40" style="border-color: #ff007f;">
-        </div>
-    </div>
-
-    <!-- 3. AFTER HIGH ODDS -->
-    <div class="section-title">3. After High Odds</div>
-    <div class="input-row">
-        <div class="input-group">
-            <label>TIME (HH:MM:SS)</label>
-            <input type="text" id="afterTime" placeholder="10:16:11">
-        </div>
-        <div class="input-group">
-            <label>ODDS (e.g. 2.10)</label>
-            <input type="text" id="afterOdds" placeholder="1.20">
-        </div>
-    </div>
-
-    <button onclick="startLoadingProcess()">ANALYZE MATRIX 🎯</button>
-</div>
-
-<!-- STEP 3: 5-SECOND LOADING SCREEN -->
-<div class="container step-panel" id="stepLoading">
-    <div class="loader-box">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingStatus">CONNECTING TO SERVER...</div>
-    </div>
-</div>
-
-<!-- STEP 4: RESULT SCREEN -->
-<div class="container step-panel" id="stepResult">
-    <h2>🎯 MATRIX RESULT</h2>
-    <div class="result-box">
-        <div class="result-title">⚡ GENERATED LUCKY MINUTES</div>
-        <div class="signal-time" id="signalOutput">00:00 | 00:00</div>
+    <!-- 2. MAIN APP DASHBOARD (ලොග් වුණාට පස්සේ පෙනෙන කොටස) -->
+    <div id="app-dashboard" class="container">
+        <h2>KING SHORT<br><span style="font-size: 13px; color: #fff;">Multi-Matrix Predictor</span></h2>
         
-        <!-- TARGET ODDS SECTION -->
-        <div class="target-box">
-            🎯 TARGET: 7x | 9x | 10x
+        <div class="section-title">Data Input Matrix</div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>LAST VALUE 1</label>
+                <input type="number" id="val1" placeholder="0.00">
+            </div>
+            <div class="input-group">
+                <label>LAST VALUE 2</label>
+                <input type="number" id="val2" placeholder="0.00">
+            </div>
+        </div>
+
+        <button onclick="generatePrediction()">GENERATE SIGNAL</button>
+
+        <div class="result-box" id="result">
+            Awaiting Next Signal Matrix...
         </div>
     </div>
-    <button onclick="restartApp()">🔄 START AGAIN</button>
-</div>
 
-<script>
-const ALLOWED_PASSWORDS = ["KING99", "VIP99", "SHORT01", "BONY7", "FUN26"]; 
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ඔයා ලබාගත්තු ඔයාගේම රහස් Gist ලින්ක් එක
+        const gistUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
 
-function switchStep(nextStepId) {
-    document.querySelectorAll('.step-panel').forEach(panel => {
-        panel.style.display = 'none';
-    });
-    document.getElementById(nextStepId).style.display = 'block';
-}
+        async function checkLogin() {
+            const userEnteredPw = document.getElementById("passwordField").value.trim();
+            
+            if (userEnteredPw === "") {
+                alert("කරුණාකර Password එකක් ඇතුළත් කරන්න!");
+                return;
+            }
 
-function checkPassword() {
-    let enteredPw = document.getElementById('pwInput').value.trim();
-    let errorMsg = document.getElementById('errorMsg');
-    
-    if(ALLOWED_PASSWORDS.includes(enteredPw)) {
-        switchStep('stepMatrix');
-    } else {
-        errorMsg.style.display = 'block';
-        document.getElementById('pwInput').value = '';
-    }
-}
+            try {
+                // Online Gist එක කියවීම
+                const response = await fetch(gistUrl);
+                const textData = await response.text();
+                
+                // පේළියෙන් පේළියට ඇති Password වෙන් කරගැනීම
+                const validPasswords = textData.split("\n").map(pw => pw.trim());
 
-function startLoadingProcess() {
-    let timeStr = document.getElementById('timeInput').value.trim();
-    let oddsStr = document.getElementById('oddsInput').value.trim();
-    
-    if(!timeStr || !timeStr.includes(':') || !oddsStr) {
-        alert("කරුණාකර Target High Odds එකේ Time සහ Odds නිවැරදිව ඇතුළත් කරන්න!");
-        return;
-    }
+                // ඇතුළත් කළ රහස් පදය Gist එකේ තිබේදැයි බැලීම
+                if (validPasswords.includes(userEnteredPw)) {
+                    alert("Login Successful! ✅");
+                    // Login screen එක හංගලා Dashboard එක පෙන්වනවා
+                    document.getElementById("login-screen").style.display = "none";
+                    document.getElementById("app-dashboard").style.display = "block";
+                } else {
+                    alert("වැරදි VIP Password එකක්! කරුණාකර නිවැරදි එක ලබාගන්න.");
+                }
+            } catch (error) {
+                alert("Internet Connection එකේ අවුලක්! නැවත උත්සාහ කරන්න.");
+                console.error(error);
+            }
+        }
 
-    switchStep('stepLoading');
-    
-    let statusText = document.getElementById('loadingStatus');
-    
-    setTimeout(() => { statusText.innerHTML = "EXTRACTING DATA NODE..."; }, 1500);
-    setTimeout(() => { statusText.innerHTML = "CALCULATING SIGNAL MATRIX..."; }, 3200);
-    
-    setTimeout(() => {
-        processSignalCalculation();
-    }, 5000);
-}
+        // සිග්නල් ඇනලයිස් කරන සරල Logic එකක් (ඔයාට ඕන විදිහට මේක පස්සේ වෙනස් කරගන්න පුළුවන්)
+        function generatePrediction() {
+            const v1 = parseFloat(document.getElementById("val1").value);
+            const v2 = parseFloat(document.getElementById("val2").value);
 
-function processSignalCalculation() {
-    let timeStr = document.getElementById('timeInput').value.trim();
-    let oddsStr = document.getElementById('oddsInput').value.trim();
-    
-    let timeParts = timeStr.split(':');
-    let hours = parseInt(timeParts[0]);
-    let minutes = parseInt(timeParts[1]);
-    
-    minutes = minutes + 1;
-    if(minutes >= 60) { minutes = 0; hours = (hours + 1) % 24; }
+            if (isNaN(v1) || !v2) {
+                alert("කරුණාකර අගයන් නිවැරදිව ඇතුළත් කරන්න!");
+                return;
+            }
 
-    let cleanOdds = oddsStr.replace(/[^0-9]/g, ''); 
-    let sumOfDigits = 0;
-    for (let i = 0; i < cleanOdds.length; i++) {
-        sumOfDigits += parseInt(cleanOdds[i]);
-    }
-    minutes = minutes + sumOfDigits;
-    
-    while (minutes >= 60) { minutes = minutes - 60; hours = (hours + 1) % 24; }
-
-    let s1Hours = hours.toString().padStart(2, '0');
-    let s1Minutes = minutes.toString().padStart(2, '0');
-    let signal1 = `${s1Hours}:${s1Minutes}`;
-
-    let nextMinutes = minutes + 1;
-    let s2Hours = hours;
-    if (nextMinutes >= 60) { nextMinutes = 0; s2Hours = (hours + 1) % 24; }
-    s2Hours = s2Hours.toString().padStart(2, '0');
-    nextMinutes = nextMinutes.toString().padStart(2, '0');
-    let signal2 = `${s2Hours}:${nextMinutes}`;
-
-    document.getElementById('signalOutput').innerHTML = `${signal1} &nbsp;|&nbsp; ${signal2}`;
-    switchStep('stepResult');
-}
-
-function restartApp() {
-    document.getElementById('beforeTime').value = '';
-    document.getElementById('beforeOdds').value = '';
-    document.getElementById('timeInput').value = '';
-    document.getElementById('oddsInput').value = '';
-    document.getElementById('afterTime').value = '';
-    document.getElementById('afterOdds').value = '';
-    switchStep('stepMatrix');
-}
-</script>
-
+            // නිකන් උදාහරණ ගණනය කිරීමක් දාලා තියෙන්නේ
+            const prediction = ((v1 + v2) / 1.5).toFixed(2);
+            
+            document.getElementById("result").innerHTML = `🎯 NEXT SIGNAL: <span style="color: #ff007f;">${prediction}x</span>`;
+        }
+    </script>
 </body>
 </html>
