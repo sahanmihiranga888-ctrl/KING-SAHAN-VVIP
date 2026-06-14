@@ -13,6 +13,7 @@
         label { display: block; margin-bottom: 6px; color: #ff007f; font-size: 11px; text-align: center; font-weight: bold; letter-spacing: 1px; }
         .section-title { color: #bbb; font-size: 12px; font-weight: bold; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #ff007f; padding-left: 8px; }
         input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background-color: #2a2a35; color: #fff; font-size: 14px; box-sizing: border-box; text-align: center; }
+        input:focus { outline: none; border-color: #ff007f; }
         button { width: 100%; padding: 12px; background-color: #ff007f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s; margin-top: 15px; }
         button:hover { background-color: #e0006c; }
         
@@ -65,12 +66,13 @@
             <button onclick="startPredictionProcess()">GENERATE MATRIX SIGNAL</button>
         </div>
 
-        <div class="result-box" id="result" style="display: none;">
-            </div>
+        <div class="result-box" id="result" style="display: none;"></div>
     </div>
 
     <script>
-        const gistUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
+        // Cache නොවී හැමවෙලේම අලුත්ම password ලිස්ට් එක ගන්න පොඩි ට්‍රික් එකක් දැම්මා (?t=)
+        const gistBaseUrl = "https://gist.githubusercontent.com/sahanmihiranga888-ctrl/4dfef0f3bcdfcb27475750e3261c2b2d/raw/1ea91c6f22182260fb3657e72b4e012aca5915fb/pw.txt";
+        const gistUrl = gistBaseUrl + "?t=" + new Date().getTime();
         
         let idleTimer;
         const timeoutDuration = 20 * 60 * 1000; 
@@ -84,15 +86,24 @@
             try {
                 const res = await fetch(gistUrl);
                 const data = await res.text();
-                if (data.includes(pw)) {
+                const validPasswords = data.split("\n").map(p => p.trim());
+
+                if (validPasswords.includes(pw)) {
+                    alert("Login Successful! ✅");
                     document.getElementById("login-screen").style.display = "none";
                     document.getElementById("app-dashboard").style.display = "block";
+                    
                     startIdleTimer();
+                    window.onload = startIdleTimer;
+                    window.onmousemove = startIdleTimer;
+                    window.onmousedown = startIdleTimer; 
+                    window.ontouchstart = startIdleTimer;
+                    window.onclick = startIdleTimer;     
+                    window.onkeydown = startIdleTimer;   
                 } else { alert("වැරදි VIP Password එකක්!"); }
-            } catch (error) { alert("Internet අවුලක්!"); }
+            } catch (error) { alert("Internet ಅವುಲක්!"); }
         }
 
-        // සිග්නල් ප්‍රොසෙස් එක පටන් ගන්නවා
         function startPredictionProcess() {
             const time2Input = document.getElementById("time2").value.trim();
             const odd2Input = parseFloat(document.getElementById("odd2").value);
@@ -100,10 +111,10 @@
             if (!time2Input || isNaN(odd2Input)) { alert("High Odd දත්ත ඇතුළත් කරන්න!"); return; }
             if (odd2Input < 10.00) { alert("High Odd එක 10.00 හෝ ඊට වැඩි විය යුතුයි!"); return; }
 
-            // 1. ඉන්පුට් ෆෝම් එක සඟවනවා
+            // 1. ෆෝම් එක සඟවනවා
             document.getElementById("matrix-inputs-form").style.display = "none";
             
-            // 2. රිසල්ට් බොක්ස් එක පෙන්වනවා ලෝඩර් එකත් එක්ක
+            // 2. ලෝඩර් එක පෙන්වනවා
             const resultDiv = document.getElementById("result");
             resultDiv.style.display = "flex";
             resultDiv.innerHTML = `
@@ -114,20 +125,31 @@
             setTimeout(generatePrediction, 2500);
         }
 
-        // සිග්නල් එක පෙන්වන කොටස
         function generatePrediction() {
             const time2Input = document.getElementById("time2").value.trim();
             const odd2Input = parseFloat(document.getElementById("odd2").value);
 
+            // Odd එකේ ඉලක්කම් එකතු කිරීම
             let digitsSum = 0;
             odd2Input.toString().replace('.', '').split('').forEach(d => {
                 if (!isNaN(parseInt(d))) digitsSum += parseInt(d);
             });
 
+            // වෙලාව වෙන් කිරීම
             const t = time2Input.split(":");
-            let dateObj = new Date();
-            dateObj.setHours(parseInt(t[0]), parseInt(t[1]), 0, 0);
+            if (t.length !== 3) {
+                alert("Time එක HH:MM:SS විදිහට දමන්න!");
+                goBackToInputs();
+                return;
+            }
+            
+            let hours = parseInt(t[0]);
+            let minutes = parseInt(t[1]);
 
+            let dateObj = new Date();
+            dateObj.setHours(hours, minutes, 0, 0);
+
+            // නිවැරදි කළ රවුම් මිනිත්තු සූත්‍රය (08:00 -> 08:09 / 08:10)
             let s1 = new Date(dateObj.getTime() + (digitsSum + 1) * 60000);
             let s2 = new Date(dateObj.getTime() + (digitsSum + 2) * 60000);
 
@@ -136,7 +158,7 @@
             let safeOddVal = digitsSum - 5;
             if (safeOddVal <= 0) safeOddVal = 2;
 
-            // සූත්‍ර සහ අනවශ්‍ය දේවල් කිසිවක් නැත! පිරිසිදු සිග්නල් එක පමණි.
+            // පිරිසිදු රහස්‍ය සිග්නල් එක පෙන්වීම
             document.getElementById("result").innerHTML = `
                 <div class="server-title">⚡ KING ANALYSIS SERVER SIGNAL ⚡</div>
                 <div style="color: #aaa; font-size: 13px;">NEXT CONFIRMED MATRIX RANGE</div>
@@ -148,11 +170,9 @@
             `;
         }
 
-        // ආපහු ඉන්පුට් වලට යන්න හදපු function එක
         function goBackToInputs() {
             document.getElementById("result").style.display = "none";
             document.getElementById("matrix-inputs-form").style.display = "block";
-            // කලින් ගහපු ඉන්පුට්ස් ක්ලියර් කරනවා ආරක්ෂාවට
             document.getElementById("time2").value = "";
             document.getElementById("odd2").value = "";
         }
